@@ -7,9 +7,7 @@ const server = express();
 server.use(express.json());
 
 server.post('/api/users', (req, res) => {
-  console.log("req.body: ", req.body);
   const { name, bio } = req.body;
-  console.log(name, bio);
   if (!name || !bio) {
     res.status(400).json({ message: "Please provide name and bio for the user"});
   } else {
@@ -31,7 +29,7 @@ server.get('/api/users', (req, res) => {
     .catch(err => {
       res.status(500).json({ message: "The users information could not be retrieved"});
     })
-})
+});
 
 server.get('/api/users/:id', (req, res) => {
   const { id } = req.params;
@@ -42,11 +40,46 @@ server.get('/api/users/:id', (req, res) => {
       } else {
         res.status(404).json({ message: "The user with the specified ID does not exist"});
       }
-      console.log(result);
     })
     .catch(err => {
       res.status(500).json({ message: "The user information could not be retrieved"});
     })
-})
+});
+
+server.delete('/api/users/:id', (req, res) => {
+  const { id } = req.params;
+  Users.remove(id)
+    .then(result => {
+      if (result) {
+        res.json(result);
+      } else {
+        res.status(404).json({ message: "The user with the specified ID does not exist"});
+      }
+    })
+    .catch(err => {
+      res.status(500).json({ message: "The user information could not be retrieved"});
+    })
+});
+
+server.put('/api/users/:id', (req, res) => {
+  const { id } = req.params;
+  const { name, bio } = req.body;
+
+  if (!name || !bio) {
+    res.status(400).json({ message: "Please provide name and bio for the user"});
+  } else {
+    Users.update(id, req.body)
+      .then(result => {
+        if (result) {
+          res.json(result);
+        } else {
+          res.status(404).json({ message: "The user with the specified ID does not exist"});
+        }
+      })
+      .catch(err => {
+        res.status(500).json({ message: "The user information could not be retrieved"});
+      });
+  }
+});
 
 module.exports = server; // EXPORT YOUR SERVER instead of {}
